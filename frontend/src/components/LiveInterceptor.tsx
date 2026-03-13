@@ -82,11 +82,29 @@ const LiveInterceptor: React.FC<LiveInterceptorProps> = ({ onCapture, isAnalyzin
 
     return (
         <div className="relative w-full aspect-video rounded-[2rem] overflow-hidden glass border border-white/10 group">
+            {/* Mode Selector Overlay - NOW ALWAYS VISIBLE & SEPARATE */}
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 flex gap-3 z-50">
+                <button
+                    onClick={startCamera}
+                    className={`px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.2em] border transition-all ${mode === 'camera' ? 'bg-primary border-primary text-white glow-blue' : 'bg-black/60 backdrop-blur-md border-white/10 text-white/40 hover:text-white'}`}
+                >
+                    <Camera size={14} /> Mission Camera
+                </button>
+                <button
+                    onClick={startScreenCapture}
+                    className={`px-6 py-2.5 rounded-xl flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.2em] border transition-all ${mode === 'screen' ? 'bg-primary border-primary text-white glow-blue' : 'bg-black/60 backdrop-blur-md border-white/10 text-white/40 hover:text-white'}`}
+                >
+                    <Monitor size={14} /> Intercept Live Call
+                </button>
+            </div>
+
             {error ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-red-500 p-6 text-center z-20">
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-red-500 bg-[#020617]/80 backdrop-blur-xl p-6 text-center z-20">
                     <ShieldAlert size={48} className="mb-4" />
                     <p className="font-mono text-xs uppercase tracking-widest">{error}</p>
-                    <button onClick={startCamera} className="mt-4 px-4 py-2 bg-white/5 rounded-lg text-[10px] uppercase font-mono">Retry Sentinel</button>
+                    <div className="mt-6 flex flex-col items-center gap-2">
+                        <p className="text-[9px] font-mono opacity-40 uppercase tracking-tighter italic">SWITCH TO 'INTERCEPT LIVE CALL' IF CAMERA FAILS</p>
+                    </div>
                 </div>
             ) : (
                 <>
@@ -98,25 +116,9 @@ const LiveInterceptor: React.FC<LiveInterceptorProps> = ({ onCapture, isAnalyzin
                         className={`w-full h-full object-cover ${mode === 'camera' ? 'grayscale brightness-75 contrast-125' : ''}`}
                     />
 
-                    {/* Mode Selector Overlay */}
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2 z-30 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onClick={startCamera}
-                            className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest border transition-all ${mode === 'camera' ? 'bg-primary border-primary text-white glow-blue' : 'bg-black/60 border-white/10 text-white/40 hover:text-white'}`}
-                        >
-                            <Camera size={14} /> Camera
-                        </button>
-                        <button
-                            onClick={startScreenCapture}
-                            className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest border transition-all ${mode === 'screen' ? 'bg-primary border-primary text-white glow-blue' : 'bg-black/60 border-white/10 text-white/40 hover:text-white'}`}
-                        >
-                            <Monitor size={14} /> Intercept Screen
-                        </button>
-                    </div>
-
                     {/* HUD Overlays */}
                     <div className="absolute inset-0 pointer-events-none p-6 flex flex-col justify-between z-10">
-                        <div className="flex justify-between items-start">
+                        <div className="flex justify-between items-start mt-16"> {/* Pushed down for selector */}
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2 text-primary">
                                     <Activity size={14} className="animate-pulse" />
@@ -158,6 +160,7 @@ const LiveInterceptor: React.FC<LiveInterceptorProps> = ({ onCapture, isAnalyzin
                                 onClick={captureFrame}
                                 disabled={isAnalyzing}
                                 className="bg-primary/20 hover:bg-primary/40 p-4 rounded-2xl border border-primary/30 transition-all pointer-events-auto active:scale-95 group/btn shadow-xl"
+                                title="Run Neural Audit on current frame"
                             >
                                 <RefreshCw size={24} className={`text-primary ${isAnalyzing ? 'animate-spin' : 'group-hover/btn:rotate-180 transition-transform duration-500'}`} />
                             </button>
