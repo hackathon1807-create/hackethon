@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const App: React.FC = () => {
   const [activeMission, setActiveMission] = useState<'upload' | 'live' | 'call' | 'stream' | 'social'>('upload');
-  const [score, setScore] = useState<number>(100);
+  const [score, setScore] = useState<number>(0);
   const [explanation, setExplanation] = useState<string>("OmniCheck 11-11 Initialized. Systems Nominal. Ready for mission-critical audit.");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [breakdown, setBreakdown] = useState<any[]>([]);
@@ -52,11 +52,13 @@ const App: React.FC = () => {
       setScore(data.score || 50);
       setExplanation(data.explanation || "Audit protocol complete.");
 
+      const getStatus = (s: number) => s > 80 ? "green" : s > 50 ? "gold" : "red";
+
       const newBreakdown = [
         { label: "Hybrid Engine", value: "Active", status: "green" },
-        { label: "Local Audit", value: data.local_score !== undefined ? `${data.local_score}%` : "Processed", status: (data.local_score || 0) > 50 ? "green" : "red" },
-        { label: "Gemini Reasoning", value: "Verified", status: "green" },
-        { label: "Neural Fidelity", value: "High", status: "green" }
+        { label: "Local Audit", value: data.local_score !== undefined ? `${data.local_score}%` : "Processed", status: getStatus(data.local_score || 0) },
+        { label: "Gemini Reasoning", value: "Verified", status: getStatus(data.score || 0) },
+        { label: "Neural Fidelity", value: "Active", status: "green" }
       ];
 
       if (data.features) {
@@ -338,7 +340,7 @@ const App: React.FC = () => {
                   <div key={i} className="flex flex-col gap-2">
                     <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest">
                       <span className="opacity-40">{item.label}</span>
-                      <span className={`px-3 py-1 rounded-lg border ${item.status === 'green' ? 'border-security-green/30 text-security-green bg-security-green/5' : item.status === 'red' ? 'border-security-red/30 text-security-red bg-security-red/5' : 'border-white/10 opacity-30 animate-pulse'}`}>
+                      <span className={`px-3 py-1 rounded-lg border ${item.status === 'green' ? 'border-security-green/30 text-security-green bg-security-green/5' : item.status === 'gold' ? 'border-security-gold/30 text-security-gold bg-security-gold/5' : item.status === 'red' ? 'border-security-red/30 text-security-red bg-security-red/5' : 'border-white/10 opacity-30 animate-pulse'}`}>
                         {item.value}
                       </span>
                     </div>
@@ -347,7 +349,7 @@ const App: React.FC = () => {
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: '100%' }}
-                          className={`h-full ${item.status === 'green' ? 'bg-security-green/40' : 'bg-security-red/40'}`}
+                          className={`h-full ${item.status === 'green' ? 'bg-security-green/40' : item.status === 'gold' ? 'bg-security-gold/40' : 'bg-security-red/40'}`}
                         />
                       )}
                     </div>

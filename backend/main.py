@@ -34,18 +34,18 @@ def parse_gemini_response(response_text: str):
     Supports formats like "Score: 90", "**Score**: 90%", "Score: 90/100", etc.
     """
     try:
-        score = 85 # Default to high-fidelity baseline if parsing fails but analysis ran
+        score = 50 # Default to neutral if parsing fails
         explanation = "Neural audit successfully processed."
         
-        # Look for digits after "Score" or "Authenticity"
-        score_match = re.search(r'(?:Score|Authenticity|Fidelity):\s*(\d+)', response_text, re.IGNORECASE)
+        # Look for digits after "Score" or "Authenticity" or "Fidelity"
+        score_match = re.search(r'(?:Score|Authenticity|Fidelity|Confidence|Result|Verdict):\s*(\d+)', response_text, re.IGNORECASE)
         if score_match:
             score = int(score_match.group(1))
             
-        # Extract explanation after "Explanation" or "Reasoning"
-        expl_match = re.search(r'(?:Explanation|Reasoning|Findings):\s*(.*)', response_text, re.IGNORECASE | re.DOTALL)
+        # Extract explanation after "Explanation" or "Reasoning" or "Findings"
+        expl_match = re.search(r'(?:Explanation|Reasoning|Findings|Insight):\s*(.*)', response_text, re.IGNORECASE | re.DOTALL)
         if expl_match:
-            explanation = expl_match.group(1).split("\n")[0].strip() # Take first line of explanation
+            explanation = expl_match.group(1).split("\n")[0].strip()
             
         # Clamp score
         score = max(0, min(100, score))
