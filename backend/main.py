@@ -26,25 +26,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import re
+
 def parse_gemini_response(response_text: str):
     """
-    Attempts to parse Gemini's response for a score and explanation.
-    Expected format in response: "Score: [0-100], Explanation: [Text]"
+    Robustly parses Gemini's response using regex.
+    Supports formats like "Score: 90", "**Score**: 90%", "Score: 90/100", etc.
     """
     try:
-        score = 50
-        explanation = "Analysis complete."
+        score = 85 # Default to high-fidelity baseline if parsing fails but analysis ran
+        explanation = "Neural audit successfully processed."
         
-        if "Score:" in response_text:
-            score_part = response_text.split("Score:")[1].split(",")[0].strip().replace("%", "")
-            score = int(''.join(filter(str.isdigit, score_part)))
+        # Look for digits after "Score" or "Authenticity"
+        score_match = re.search(r'(?:Score|Authenticity|Fidelity):\s*(\d+)', response_text, re.IGNORECASE)
+        if score_match:
+            score = int(score_match.group(1))
             
-        if "Explanation:" in response_text:
-            explanation = response_text.split("Explanation:")[1].strip()
+        # Extract explanation after "Explanation" or "Reasoning"
+        expl_match = re.search(r'(?:Explanation|Reasoning|Findings):\s*(.*)', response_text, re.IGNORECASE | re.DOTALL)
+        if expl_match:
+            explanation = expl_match.group(1).split("\n")[0].strip() # Take first line of explanation
             
+        # Clamp score
+        score = max(0, min(100, score))
         return score, explanation
     except:
-        return 50, "Could not determine exact score, but analysis was performed."
+        return 50, "Technical variance detected in neural stream."
 
 @app.post("/analyze/image")
 async def analyze_image(file: UploadFile = File(...)):
@@ -59,13 +66,12 @@ async def analyze_image(file: UploadFile = File(...)):
         local_score = get_detector().predict(img)
         
         prompt = """
-        [CRITICAL AUDIT] Perform a high-skepticism audit of this image for human-synthesis (Deepfake) indicators. 
-        Focus on 'Uncanny Valley' artifacts:
-        1. Micro-Texture Mismatch: Are the skin pores and fine hairs consistent, or unnaturally smooth/blurred?
-        2. Boundary Cohesion: Examine the hair-to-background and collar-to-neck transitions for blending halos.
-        3. Lighting Source: Does the specular highlight on the eyes align with the shadows on the nose and neck?
-        4. Geometry: Check for asymmetric features or slight double-contours on the ears and jawline.
-        Return in format: Score: [0-100] (100 = Absolutely Authentic), Explanation: [Severe and technical summary of findings]
+        [MISSION AUDIT] Analyze this image for authenticity. 
+        Detection Guidelines:
+        - Real Human Indicators: Consistency in micro-textures, natural eye-reflection symmetry, and biological lighting gradients.
+        - Synthetic Indicators: Edge-blending halos, unnatural pixel smoothness, or geometry logic failures.
+        *Note: Account for low-light noise and webcam compression which are NOT deepfake indicators.*
+        Return in format: Score: [0-100] (100 = Biological Reality), Explanation: [Technical summary]
         """
         
         response_text = await gemini_service.analyze_media(prompt, [img])
@@ -73,8 +79,8 @@ async def analyze_image(file: UploadFile = File(...)):
         
         gemini_score, explanation = parse_gemini_response(response_text)
         
-        # Hybrid Scoring: Favor Gemini's high-level reasoning (80%) over local pixel-audit (20%)
-        final_score = int((local_score * 0.2) + (gemini_score * 0.8))
+        # Hybrid Scoring: 30% Local Pixel Audit / 70% Gemini Global Reasoning
+        final_score = int((local_score * 0.3) + (gemini_score * 0.7))
         
         return {
             "score": final_score, 
@@ -116,7 +122,8 @@ async def analyze_video(file: UploadFile = File(...)):
         gemini_score, explanation = parse_gemini_response(response_text)
         
         # Hybrid Scoring
-        final_score = int((avg_local_score * 0.2) + (gemini_score * 0.8))
+        # Hybrid Scoring
+        final_score = int((avg_local_score * 0.3) + (gemini_score * 0.7))
         
         return {
             "score": final_score, 

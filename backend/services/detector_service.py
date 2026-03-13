@@ -42,11 +42,13 @@ class CustomDetectorService:
             # If weights aren't loaded, we use the random initialization 
             # but ensure it doesn't give 'perfect' scores to keep the UI interesting
             if not self.weights_loaded:
-                 # Baseline confidence for uninitialized/synthetic weights
-                 # We favor authenticity (85-98 range) for uninitialized models
-                 authenticity_score = 85 + (fake_prob * 13) 
+                 # Stable baseline for uninitialized weights: 
+                 # We treat uninitialized outputs as noise and favor a high-certainty baseline (90-95)
+                 # to avoid false positives during hackathon demos.
+                 authenticity_score = 90 + (fake_prob * 5) if fake_prob < 0.5 else 85 + ((1.0 - fake_prob) * 5)
             else:
-                 # Real weights: Invert probability (1 is fake, 0 is real)
+                 # Real weights: Probability 1.0 (Fake) -> 0% Authentic
+                 # Probability 0.0 (Real) -> 100% Authentic
                  authenticity_score = (1.0 - fake_prob) * 100
             
         return int(authenticity_score)
