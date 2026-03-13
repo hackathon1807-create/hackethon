@@ -1,9 +1,9 @@
 fastapi
 uvicorn
+httpx
+opencv-python-headless
 python-multipart
-google-generativeai
-opencv-python
-librosa
+Pillow
 python-dotenv
 pydantic
-numpy
+python-whois

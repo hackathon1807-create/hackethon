@@ -1,56 +1,50 @@
 import cv2
-import librosa
+import os
+import tempfile
 import numpy as np
 from typing import List
-import tempfile
-import os
 
 class MediaProcessor:
-    @staticmethod
-    def extract_frames(video_path: str, max_frames: int = 5) -> List[np.ndarray]:
-        """
-        Extracts representative frames from a video file.
-        """
-        frames = []
-        cap = cv2.VideoCapture(video_path)
-        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        
-        if total_frames <= 0:
-            return []
+    def __init__(self):
+        self.max_frames = 10 # Sample size for hackathon performance
 
-        # Extract frames at regular intervals
-        interval = max(1, total_frames // max_frames)
-        for i in range(0, total_frames, interval):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, i)
-            ret, frame = cap.read()
-            if ret:
-                # Resize for Gemini context efficiency
-                frame = cv2.resize(frame, (640, 360))
-                frames.append(frame)
-            if len(frames) >= max_frames:
-                break
-        
-        cap.release()
+    async def extract_frames(self, media_path: str) -> List[np.ndarray]:
+        """Extracts frames from a video file for CNN analysis."""
+        frames = []
+        try:
+            cap = cv2.VideoCapture(media_path)
+            total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            
+            if total_frames <= 0:
+                return []
+
+            # Sample frames evenly
+            step = max(1, total_frames // self.max_frames)
+            
+            for i in range(0, total_frames, step):
+                cap.set(cv2.CAP_PROP_POS_FRAMES, i)
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                # Resize for model input (simulated)
+                frame_resized = cv2.resize(frame, (224, 224))
+                frames.append(frame_resized)
+                
+                if len(frames) >= self.max_frames:
+                    break
+                    
+            cap.release()
+        except Exception as e:
+            print(f"Frame Extraction Error: {str(e)}")
+            
         return frames
 
-    @staticmethod
-    def analyze_audio_features(audio_path: str):
-        """
-        Extracts basic spectral features from audio to help detect AI cloning artifacts.
-        """
-        try:
-            y, sr = librosa.load(audio_path, sr=None)
-            # Spectral centroid (brightness of sound)
-            centroid = librosa.feature.spectral_centroid(y=y, sr=sr)
-            # Spectral bandwidth
-            bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)
-            
-            return {
-                "mean_centroid": float(np.mean(centroid)),
-                "mean_bandwidth": float(np.mean(bandwidth)),
-                "is_monotone": bool(np.std(centroid) < 100) # Simple heuristic for robotic voice
-            }
-        except Exception as e:
-            return {"error": str(e)}
+    async def process_image(self, image_path: str) -> np.ndarray:
+        """Processes a single image for CNN analysis."""
+        img = cv2.imread(image_path)
+        if img is not None:
+            return cv2.resize(img, (224, 224))
+        return None
 
 media_processor = MediaProcessor()

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./temp_uploads:/app/temp_uploads
+    environment:
+      # Use host.docker.internal to route OLLAMA calls to the host machine's Ollama instance.
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    extra_hosts:
+      # Allows reaching localhost from the container on Windows/Mac
+      - "host.docker.internal:host-gateway"
+    networks:
+      - bloodmoon_net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      # Make sure the frontend calls the backend on local mapping
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - bloodmoon_net
+    restart: unless-stopped
+
+networks:
+  bloodmoon_net:
+    driver: bridge
