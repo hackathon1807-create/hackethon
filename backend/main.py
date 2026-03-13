@@ -12,6 +12,7 @@ load_dotenv()
 
 from services.gemini_service import gemini_service
 from services.media_processor import media_processor
+from services.detector_service import get_detector
 import json
 import cv2
 
@@ -53,6 +54,10 @@ async def analyze_image(file: UploadFile = File(...)):
             tmp_path = tmp.name
         
         img = Image.open(tmp_path)
+        
+        # --- PHASE 6: CUSTOM LOCAL MODEL ---
+        local_score = get_detector().predict(img)
+        
         prompt = """
         Audit this image for deepfake indicators. Look for:
         1. Skin texture anomalies (unnatural smoothness or artifacts).
@@ -64,8 +69,17 @@ async def analyze_image(file: UploadFile = File(...)):
         response_text = await gemini_service.analyze_media(prompt, [img])
         os.unlink(tmp_path)
         
-        score, explanation = parse_gemini_response(response_text)
-        return {"score": score, "explanation": explanation, "raw": response_text}
+        gemini_score, explanation = parse_gemini_response(response_text)
+        
+        # Hybrid Scoring
+        final_score = int((local_score * 0.4) + (gemini_score * 0.6))
+        
+        return {
+            "score": final_score, 
+            "explanation": f"[Hybrid Audit] Local Engine: {local_score}% | Gemini reasoning: {explanation}",
+            "raw": response_text,
+            "local_score": local_score
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -79,6 +93,11 @@ async def analyze_video(file: UploadFile = File(...)):
         frames = media_processor.extract_frames(tmp_path)
         pil_frames = [Image.fromarray(cv2.cvtColor(f, cv2.COLOR_BGR2RGB)) for f in frames]
         
+        # --- PHASE 6: CUSTOM LOCAL MODEL (Video) ---
+        detector = get_detector()
+        local_scores = [detector.predict(f) for f in pil_frames]
+        avg_local_score = int(sum(local_scores) / len(local_scores)) if local_scores else 50
+        
         prompt = """
         Analyze these sequential frames for video deepfake/liveness indicators. Look for:
         1. Natural blinking and micro-expressions.
@@ -90,8 +109,17 @@ async def analyze_video(file: UploadFile = File(...)):
         response_text = await gemini_service.analyze_media(prompt, pil_frames)
         os.unlink(tmp_path)
         
-        score, explanation = parse_gemini_response(response_text)
-        return {"score": score, "explanation": explanation, "raw": response_text}
+        gemini_score, explanation = parse_gemini_response(response_text)
+        
+        # Hybrid Scoring
+        final_score = int((avg_local_score * 0.4) + (gemini_score * 0.6))
+        
+        return {
+            "score": final_score, 
+            "explanation": f"[Hybrid Audit] Local Engine: {avg_local_score}% | Gemini reasoning: {explanation}",
+            "raw": response_text,
+            "local_score": avg_local_score
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
