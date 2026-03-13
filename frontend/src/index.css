@@ -15,11 +15,12 @@
 body {
   @apply bg-background text-foreground;
   font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
 .glass {
   background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -28,17 +29,27 @@ body {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 15px 45px -10px rgba(0, 0, 0, 0.6);
 }
 
 .glow-green {
-  box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
 }
 
 .glow-red {
-  box-shadow: 0 0 15px rgba(255, 49, 49, 0.3);
+  box-shadow: 0 0 15px rgba(255, 49, 49, 0.4);
 }
 
 .glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+}
+
+/* Hide scrollbar for clean mission control look */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

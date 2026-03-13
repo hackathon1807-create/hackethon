@@ -59,11 +59,13 @@ async def analyze_image(file: UploadFile = File(...)):
         local_score = get_detector().predict(img)
         
         prompt = """
-        Audit this image for deepfake indicators. Look for:
-        1. Skin texture anomalies (unnatural smoothness or artifacts).
-        2. Inconsistent lighting and shadows on the face.
-        3. Blending issues around the hair and jawline.
-        Return in format: Score: [0-100] (higher is more authentic), Explanation: [Short summary of findings]
+        [CRITICAL AUDIT] Perform a high-skepticism audit of this image for human-synthesis (Deepfake) indicators. 
+        Focus on 'Uncanny Valley' artifacts:
+        1. Micro-Texture Mismatch: Are the skin pores and fine hairs consistent, or unnaturally smooth/blurred?
+        2. Boundary Cohesion: Examine the hair-to-background and collar-to-neck transitions for blending halos.
+        3. Lighting Source: Does the specular highlight on the eyes align with the shadows on the nose and neck?
+        4. Geometry: Check for asymmetric features or slight double-contours on the ears and jawline.
+        Return in format: Score: [0-100] (100 = Absolutely Authentic), Explanation: [Severe and technical summary of findings]
         """
         
         response_text = await gemini_service.analyze_media(prompt, [img])
@@ -99,11 +101,13 @@ async def analyze_video(file: UploadFile = File(...)):
         avg_local_score = int(sum(local_scores) / len(local_scores)) if local_scores else 50
         
         prompt = """
-        Analyze these sequential frames for video deepfake/liveness indicators. Look for:
-        1. Natural blinking and micro-expressions.
-        2. Consistency of facial features across frames.
-        3. Lip-sync accuracy if movement is present.
-        Return in format: Score: [0-100] (higher is more authentic), Explanation: [Short summary of findings]
+        [TEMPORAL SKEPTICISM AUDIT] Analyze these sequential frames for video deepfake/liveness indicators. 
+        Look for 'Synthesis Artifacts' in motion:
+        1. Temporal Jitter: Do facial features 'shimmer' or shift slightly between frames?
+        2. Liveness Baseline: Check for natural micro-expressions and involuntary muscle movements (pulsing, eye-quakes).
+        3. Boundary Stability: Watch the edge of the face/neck for 'masking' artifacts as it moves.
+        4. Lip-Sync Precision: Do the phonemes match the lip positions with sub-pixel accuracy?
+        Return in format: Score: [0-100] (100 = Biological Reality), Explanation: [Technical diagnostic of liveness]
         """
         
         response_text = await gemini_service.analyze_media(prompt, pil_frames)

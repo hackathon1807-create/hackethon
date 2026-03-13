@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import AuthenticityDial from './components/AuthenticityDial';
-import CameraFeed from './components/CameraFeed';
+import LiveInterceptor from './components/LiveInterceptor';
 import StreamDashboard from './components/StreamDashboard';
 import {
-  Upload, Camera, Globe, ShieldCheck, AlertCircle,
-  Menu, X, LayoutDashboard, Phone, Radio, Activity,
-  Database, User, Settings, Info, Cpu, ChevronRight
+  Upload, Camera, Globe, ShieldCheck, ShieldAlert,
+  Menu, X, Phone, Radio, Activity,
+  Database, User, Settings, Info, Cpu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -226,7 +226,7 @@ const App: React.FC = () => {
 
                 {activeMission === 'live' && (
                   <div className="flex-1 flex flex-col gap-6">
-                    <CameraFeed
+                    <LiveInterceptor
                       isAnalyzing={isAnalyzing}
                       score={score}
                       onCapture={(blob) => handleAnalysis(blob, 'image/jpeg')}
@@ -252,7 +252,14 @@ const App: React.FC = () => {
                 )}
 
                 {(activeMission === 'call' || activeMission === 'stream') && (
-                  <StreamDashboard type={activeMission === 'call' ? 'call' : 'stream'} />
+                  <div className="flex-1 flex flex-col gap-8">
+                    <LiveInterceptor
+                      isAnalyzing={isAnalyzing}
+                      score={score}
+                      onCapture={(blob) => handleAnalysis(blob, 'image/jpeg')}
+                    />
+                    <StreamDashboard type={activeMission === 'call' ? 'call' : 'stream'} />
+                  </div>
                 )}
 
                 {activeMission === 'social' && (
