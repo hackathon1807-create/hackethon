@@ -73,8 +73,8 @@ async def analyze_image(file: UploadFile = File(...)):
         
         gemini_score, explanation = parse_gemini_response(response_text)
         
-        # Hybrid Scoring
-        final_score = int((local_score * 0.4) + (gemini_score * 0.6))
+        # Hybrid Scoring: Favor Gemini's high-level reasoning (80%) over local pixel-audit (20%)
+        final_score = int((local_score * 0.2) + (gemini_score * 0.8))
         
         return {
             "score": final_score, 
@@ -116,7 +116,7 @@ async def analyze_video(file: UploadFile = File(...)):
         gemini_score, explanation = parse_gemini_response(response_text)
         
         # Hybrid Scoring
-        final_score = int((avg_local_score * 0.4) + (gemini_score * 0.6))
+        final_score = int((avg_local_score * 0.2) + (gemini_score * 0.8))
         
         return {
             "score": final_score, 
