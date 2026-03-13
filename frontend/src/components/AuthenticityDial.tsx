@@ -11,9 +11,9 @@ const AuthenticityDial: React.FC<AuthenticityDialProps> = ({ score }) => {
     const offset = circumference - (score / 100) * circumference;
 
     const getColor = () => {
-        if (score > 75) return "#00FF41"; // Safe
-        if (score > 40) return "#FFD700"; // Warning
-        return "#FF3131"; // Danger
+        if (score > 80) return "#00FF41"; // Verified (Green)
+        if (score > 50) return "#FFD700"; // Suspicious (Gold)
+        return "#FF3131"; // Deepfake (Red)
     };
 
     return (
@@ -62,10 +62,10 @@ const AuthenticityDial: React.FC<AuthenticityDialProps> = ({ score }) => {
             </div>
 
             <div className="mt-8 grid grid-cols-2 gap-4 w-full">
-                <div className="flex flex-col items-center p-2 rounded-xl bg-white/5 border border-white/5">
+                <div className="flex flex-col items-center p-2 rounded-xl bg-white/5 border border-white/5 overflow-hidden">
                     <span className="text-[9px] uppercase opacity-40">Status</span>
-                    <span className={`text-[11px] font-bold ${score < 40 ? 'text-security-red' : 'text-security-green'}`}>
-                        {score < 40 ? 'LOW TRUST' : 'VERIFIED'}
+                    <span className="text-[11px] font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: getColor() }}>
+                        {score > 80 ? 'VERIFIED' : score > 50 ? 'SUSPICIOUS' : 'DEEPFAKE'}
                     </span>
                 </div>
                 <div className="flex flex-col items-center p-2 rounded-xl bg-white/5 border border-white/5">

@@ -297,10 +297,10 @@ const App: React.FC = () => {
             </AnimatePresence>
 
             {/* Status Console */}
-            <div className={`glass rounded-[2rem] p-8 border-l-[8px] ${score > 70 ? 'border-security-green' : 'border-security-red'} transition-all duration-1000 min-h-[140px] flex flex-col justify-center`}>
+            <div className={`glass rounded-[2rem] p-8 border-l-[8px] ${score > 80 ? 'border-security-green' : score > 50 ? 'border-security-gold' : 'border-security-red'} transition-all duration-1000 min-h-[140px] flex flex-col justify-center`}>
               <div className="flex items-start gap-8">
-                <div className={`w-16 h-16 rounded-3xl flex items-center justify-center shrink-0 ${score > 70 ? 'bg-security-green/10 text-security-green shadow-[0_0_20px_rgba(34,197,94,0.15)]' : 'bg-security-red/10 text-security-red shadow-[0_0_20px_rgba(239,68,68,0.15)]'}`}>
-                  {score > 70 ? <ShieldCheck size={40} /> : <ShieldAlert size={40} />}
+                <div className={`w-16 h-16 rounded-3xl flex items-center justify-center shrink-0 ${score > 80 ? 'bg-security-green/10 text-security-green' : score > 50 ? 'bg-security-gold/10 text-security-gold' : 'bg-security-red/10 text-security-red'}`}>
+                  {score > 80 ? <ShieldCheck size={40} /> : <ShieldAlert size={40} />}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
