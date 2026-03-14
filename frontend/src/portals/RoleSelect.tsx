@@ -41,19 +41,9 @@ const RoleSelect = ({ onSelect }: RoleSelectProps) => {
                 <p className="text-[11px] md:text-xs font-mono text-slate-500 uppercase tracking-[0.5em] mb-2">
                     Team Blood Moon · Deepfake Detection
                 </p>
-                <div className="flex items-center justify-center gap-3 mt-4 mb-6">
+                <div className="flex items-center justify-center gap-3 mt-4">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                     <span className="text-[9px] font-mono text-green-500 uppercase tracking-widest">Fully Local — Zero Data Retention</span>
-                </div>
-                
-                <div className="max-w-xl mx-auto border-t border-white/5 pt-6 mt-2">
-                    <p className="text-sm md:text-base font-semibold text-slate-300 leading-relaxed italic">
-                        "எப்பொருள் யார்யார்வாய்க் கேட்பினும் அப்பொருள்<br/>
-                        மெய்ப்பொருள் காண்ப தறிவு."
-                    </p>
-                    <p className="text-[10px] font-mono text-slate-500 mt-3">
-                        — திருக்குறள் (௪௱௨௰௩ - 423)
-                    </p>
                 </div>
             </motion.div>
 

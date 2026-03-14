@@ -89,6 +89,17 @@ const App = () => {
                     )}
                 </AnimatePresence>
             </div>
+
+            {/* ── Global Slogan / Footer ───────────────────────────────── */}
+            <footer className="w-full border-t border-white/5 bg-black/40 py-4 px-6 text-center mt-auto shrink-0 z-50 relative">
+                <p className="text-xs md:text-sm font-semibold text-slate-300 leading-relaxed italic mb-1">
+                    "எப்பொருள் யார்யார்வாய்க் கேட்பினும் அப்பொருள்<br className="md:hidden" />
+                    &nbsp;மெய்ப்பொருள் காண்ப தறிவு."
+                </p>
+                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                    — திருக்குறள் (௪௱௨௰௩ - 423)
+                </p>
+            </footer>
         </div>
     );
 };
