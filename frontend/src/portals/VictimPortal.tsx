@@ -5,9 +5,11 @@ import {
     BookOpen, ExternalLink, ChevronLeft, AlertTriangle,
     CheckCircle, Eye, Lock, Zap, Cpu, BarChart2,
     Camera, Activity, Info, XCircle, Scan,
-    Video, Mic, StopCircle
+    Video, Mic, StopCircle, Target, Database, MapPin, 
+    Fingerprint, Users, Globe, Crosshair
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import CriminalOriginMap from '../components/CriminalOriginMap';
 
 interface VictimPortalProps { onBack: () => void; hideHeader?: boolean; }
 
@@ -221,6 +223,13 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
     const [showEvidence, setShowEvidence] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
 
+    // Trace and Takedown States
+    const [target, setTarget] = useState('');
+    const [isTracing, setIsTracing] = useState(false);
+    const [traceResult, setTraceResult] = useState<any>(null);
+    const [showTrace, setShowTrace] = useState(false);
+    const [showTakedown, setShowTakedown] = useState(false);
+
     const handleDrop = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         const file = e.dataTransfer.files?.[0];
@@ -228,6 +237,27 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
         setSelectedFile(file);
         setPreviewURL(URL.createObjectURL(file));
     }, []);
+
+    const handleTrace = async () => {
+        setIsTracing(true);
+        setShowTrace(true);
+        try {
+            const formData = new FormData();
+            if (target) formData.append('target', target);
+            if (selectedFile) formData.append('file', selectedFile);
+            const res = await fetch('http://localhost:8000/investigator/trace', { method: 'POST', body: formData });
+            const data = await res.json();
+            setTraceResult(data);
+        } catch (err: any) {
+            setTraceResult({
+                status: "BACKEND_OFFLINE",
+                error: "Cannot connect to Meipporul AI backend. Start the backend server to enable real OSINT investigation.",
+                osint_report: null, investigation_report: null,
+            });
+        } finally {
+            setIsTracing(false);
+        }
+    };
 
     const startLiveMode = async () => {
         try {
@@ -558,6 +588,20 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                 </div>
                             )}
 
+                            <div className="flex items-center gap-4 w-full mt-2 mb-1">
+                                <div className="flex-1 h-[1px] bg-white/5" />
+                                <span className="text-[10px] text-slate-600 font-mono uppercase tracking-widest">OR PASTE LINK</span>
+                                <div className="flex-1 h-[1px] bg-white/5" />
+                            </div>
+
+                            <input
+                                type="text"
+                                value={target}
+                                onChange={e => setTarget(e.target.value)}
+                                placeholder="Paste social media or website URL..."
+                                className="bg-white/5 border border-white/5 focus:border-sky-500/30 rounded-2xl px-5 py-4 text-xs font-mono text-slate-300 placeholder-slate-700 outline-none transition-all"
+                            />
+
                             <textarea
                                 value={description}
                                 onChange={e => setDescription(e.target.value)}
@@ -569,7 +613,7 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
 
                             <button
                                 onClick={handleAnalyze}
-                                disabled={(!selectedFile && !description) || !isVerified}
+                                disabled={(!selectedFile && !target && !description) || !isVerified}
                                 className="w-full bg-sky-600 hover:bg-sky-500 disabled:opacity-30 text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-[0_0_40px_-10px_rgba(14,165,233,0.5)] mt-2"
                             >
                                 <Cpu size={18} />Detect Deepfake — Run AI Analysis
@@ -651,11 +695,21 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                         <button onClick={() => setShowEvidence(!showEvidence)} className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all">
                                             <FileText size={12} className="shrink-0" /> <span className="truncate">Report</span>
                                         </button>
-                                        <button onClick={() => { setPhase('upload'); setResult(null); setSelectedFile(null); setPreviewURL(null); }}
+                                        <button onClick={() => { setPhase('upload'); setResult(null); setSelectedFile(null); setPreviewURL(null); setShowTrace(false); setTraceResult(null); setShowTakedown(false); setTarget(''); }}
                                             className="w-full sm:w-auto mt-1 sm:mt-0 justify-center flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all">
                                             <Scan size={12} className="shrink-0" /> <span className="truncate">Scan Another</span>
                                         </button>
                                     </div>
+                                    {isDeepfake && (
+                                        <div className="flex flex-col sm:flex-row gap-2 mt-3 w-full animate-fade-in">
+                                            <button onClick={handleTrace} className="flex-1 justify-center flex items-center gap-2 px-4 py-3 rounded-xl bg-blood/10 hover:bg-blood/20 border border-blood/30 text-blood text-[10px] font-bold uppercase tracking-widest transition-all">
+                                                <Target size={14} /> {isTracing ? 'Tracing Origin...' : 'Trace Origin & Creator'}
+                                            </button>
+                                            <button onClick={() => setShowTakedown(true)} className="flex-1 justify-center flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-900/20 hover:bg-amber-900/40 border border-amber-500/30 text-amber-500 text-[10px] font-bold uppercase tracking-widest transition-all">
+                                                <Globe size={14} /> Initiate Global Takedown
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -736,6 +790,83 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                                     </a>
                                                 ))}
                                             </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* OSINT Trace Module */}
+                            <AnimatePresence>
+                                {showTrace && (
+                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-6 mt-6 pt-6 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-2xl font-black uppercase tracking-tighter">Criminal Profile</h2>
+                                            {traceResult?.osint_report && <span className="text-[8px] font-mono text-green-400 uppercase tracking-widest bg-green-900/20 border border-green-500/20 px-3 py-1.5 rounded-full">✓ Real OSINT Data</span>}
+                                        </div>
+
+                                        {isTracing && (
+                                            <div className="flex flex-col items-center gap-4 py-10 opacity-50">
+                                                <div className="w-8 h-8 rounded-full border-2 border-blood/30 border-t-blood animate-spin" />
+                                                <p className="text-xs font-mono uppercase tracking-widest text-blood">Tracing IP & Registration Footprint...</p>
+                                            </div>
+                                        )}
+
+                                        {!isTracing && traceResult?.status === 'BACKEND_OFFLINE' && (
+                                            <div className="bg-amber-900/20 border border-amber-500/30 rounded-3xl p-6 text-center">
+                                                <AlertTriangle size={32} className="text-amber-400 mx-auto mb-3" />
+                                                <p className="text-sm font-bold text-amber-400 mb-1">Backend Offline</p>
+                                                <p className="text-xs text-slate-500">{traceResult.error}</p>
+                                            </div>
+                                        )}
+
+                                        {!isTracing && traceResult?.osint_report && (() => {
+                                            const o = traceResult.osint_report;
+                                            return (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="md:col-span-2 bg-white/[0.02] border border-white/5 rounded-3xl p-8">
+                                                        <div className="flex items-center gap-4 mb-6">
+                                                            <div className="w-16 h-16 rounded-2xl bg-blood/20 border border-blood/30 flex items-center justify-center">
+                                                                <Fingerprint size={32} className="text-blood" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-[9px] font-mono text-blood uppercase tracking-widest">Identified Origin</div>
+                                                                <h3 className="text-base font-black break-all">{o?.domain_intel?.domain || o?.file_forensics?.hash?.file_type || 'Unknown Source'}</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div><span className="text-[8px] opacity-30 block">Server Host</span><span className="text-xs text-slate-300 break-all">{o?.ip_intel?.geolocation?.isp || '—'}</span></div>
+                                                            <div><span className="text-[8px] opacity-30 block">Server Country</span><span className="text-xs text-slate-300">{o?.ip_intel?.geolocation?.country || '—'}</span></div>
+                                                            <div><span className="text-[8px] opacity-30 block">Registrar</span><span className="text-xs text-slate-300 break-all">{o?.domain_intel?.whois?.data?.registrar || '—'}</span></div>
+                                                            <div><span className="text-[8px] opacity-30 block">Reg. Country</span><span className="text-xs text-slate-300">{o?.domain_intel?.whois?.data?.country || '—'}</span></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {/* Global Takedown Module */}
+                            <AnimatePresence>
+                                {showTakedown && (
+                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-6 mt-6 pt-6 border-t border-white/10">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-2xl font-black uppercase tracking-tighter">Global Takedown Queue</h2>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-3">
+                                            {DMCA_PLATFORMS.map((p, i) => (
+                                                <div key={p.name} className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-2xl">{p.icon}</span>
+                                                        <div>
+                                                            <div className="text-sm font-bold">{p.name}</div>
+                                                            <div className="text-[9px] font-mono text-slate-500 uppercase">{p.url}</div>
+                                                        </div>
+                                                    </div>
+                                                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-lg bg-sky-600/20 text-sky-400 border border-sky-500/30 text-[10px] font-black uppercase tracking-widest hover:bg-sky-600 hover:text-white transition-all">Submit Notice</a>
+                                                </div>
+                                            ))}
                                         </div>
                                     </motion.div>
                                 )}

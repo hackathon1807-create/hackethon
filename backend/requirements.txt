@@ -7,3 +7,5 @@ Pillow
 python-dotenv
 pydantic
 python-whois
+torch
+torchvision
