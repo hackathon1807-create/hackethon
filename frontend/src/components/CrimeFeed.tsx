@@ -58,7 +58,7 @@ const CrimeFeed: React.FC = () => {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, x: 20 }}
                             transition={{ delay: i * 0.05 }}
-                            className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-blood/10 transition-all group relative overflow-hidden"
+                            className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-blood/10 transition-all group relative overflow-hidden shrink-0"
                         >
                             {/* Glow accent for critical */}
                             {threat.severity === 'CRITICAL' && (
