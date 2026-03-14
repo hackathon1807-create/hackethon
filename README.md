@@ -1,7 +1,7 @@
-# Blood Moon V4 🌑
+# Meipporul AI 🌑
 **A Privacy-Preserving Neural Forensics Suite for Deepfake Detection & OSINT Intelligence**
 
-Built for the 11-11 Hackathon, Blood Moon V4 is a 100% local, zero-cloud platform designed to empower victims of synthetic media exploitation and equip cybercrime investigators with automated, legally sound intelligence.
+Built for the 11-11 Hackathon by Team Blood Moon, Meipporul AI is a 100% local, zero-cloud platform designed to empower victims of synthetic media exploitation and equip cybercrime investigators with automated, legally sound intelligence.
 
 ## Core Features (V4 Phase 2 Innovations)
 
@@ -55,4 +55,5 @@ docker-compose up --build
 - `/docker-compose.yml`: Root orchestrator.
 
 ## Team
+**Team Blood Moon**
 Submitted for the 11-11 Hackathon.

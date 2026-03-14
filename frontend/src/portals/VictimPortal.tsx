@@ -338,7 +338,7 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
         if (!result) return;
         const r = result.evidence_report;
         const cnn = result.cnn_analysis;
-        const content = `BLOOD MOON — FORENSIC EVIDENCE REPORT
+        const content = `MEIPPORUL AI — FORENSIC EVIDENCE REPORT (TEAM BLOOD MOON)
 ${'═'.repeat(55)}
 Date Generated : ${new Date().toLocaleString()}
 Case Reference : BM-${Date.now()}
@@ -372,7 +372,7 @@ ${r.recommended_actions?.map((a: string, i: number) => `  ${i + 1}. ${a}`).join(
 
 ${'═'.repeat(55)}
 PRIVACY NOTICE: ${result.privacy_guarantee}
-Blood Moon v4.0 · Local AI · Zero Cloud · Zero Storage
+Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
 `;
         const blob = new Blob([content], { type: 'text/plain' });
         const a = document.createElement('a');
@@ -584,7 +584,7 @@ Blood Moon v4.0 · Local AI · Zero Cloud · Zero Storage
                                 )}
 
                                 <div className="flex-1 text-center md:text-left">
-                                    <p className="text-[10px] font-mono uppercase opacity-40 mb-1">Blood Moon · Neural Forensic Verdict</p>
+                                    <p className="text-[10px] font-mono uppercase opacity-40 mb-1">Meipporul AI · Neural Forensic Verdict</p>
                                     <h1 className={cn("text-5xl md:text-7xl font-black uppercase tracking-tighter mb-3", isDeepfake ? 'text-blood' : 'text-green-400')}>
                                         {report?.verdict || "UNKNOWN"}
                                     </h1>

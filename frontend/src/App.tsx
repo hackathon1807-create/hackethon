@@ -20,8 +20,8 @@ const App = () => {
                         <div className="w-3 h-3 rounded-full bg-blood" />
                     </div>
                     <div className="hidden sm:block">
-                        <span className="text-sm font-black uppercase tracking-wider text-white">Blood <span className="text-blood">Moon</span></span>
-                        <p className="text-[8px] font-mono text-slate-600 uppercase tracking-widest -mt-0.5">Deepfake Forensics</p>
+                        <span className="text-sm font-black uppercase tracking-wider text-white">Meipporul <span className="text-blood">AI</span></span>
+                        <p className="text-[8px] font-mono text-slate-600 uppercase tracking-widest -mt-0.5">Team Blood Moon</p>
                     </div>
                 </div>
 

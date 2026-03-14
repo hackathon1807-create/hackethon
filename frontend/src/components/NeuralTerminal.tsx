@@ -22,7 +22,7 @@ const NeuralTerminal = ({ analysis, isAnalyzing }: NeuralTerminalProps) => {
                         <Cpu size={20} className="md:w-6 md:h-6 group-hover:rotate-90 transition-transform duration-500" />
                     </div>
                     <div>
-                        <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight leading-none">Neural Terminal</h3>
+                        <h3 className="text-lg md:text-xl font-bold uppercase tracking-tight leading-none">Meipporul Terminal</h3>
                         <p className="text-[8px] md:text-[10px] font-mono opacity-40 uppercase mt-1">
                             {analysis?.model_architecture || "AWAITING ENGINE"}
                         </p>
