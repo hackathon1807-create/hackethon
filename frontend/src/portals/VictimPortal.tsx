@@ -630,7 +630,7 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                     )}
 
                     {/* ── SCANNING PHASE ───────────────────────────── */}
-                    {phase === 'scanning' && (
+                    {(phase === 'scanning' || (phase === 'result' && !result)) && (
                         <motion.div key="scanning" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center gap-8 py-20">
                             <div className="relative w-40 h-40">
                                 <motion.div
@@ -653,6 +653,12 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                             </div>
 
                             <NeuralThoughtTrace onComplete={() => setPhase('result')} />
+                            
+                            {phase === 'result' && !result && (
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[10px] font-mono text-sky-400 uppercase tracking-widest animate-pulse mt-2">
+                                    Awaiting local AI forensic verdict...
+                                </motion.div>
+                            )}
                         </motion.div>
                     )}
 
