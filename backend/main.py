@@ -49,6 +49,7 @@ IMAGE_EXTS = ('.jpg', '.jpeg', '.png', '.bmp', '.webp', '.tiff')
 # ── Victim Analysis (Image / Video) ────────────────────────────────────────────
 @app.post("/victim/analyze")
 async def victim_analyze(
+    target: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     file: Optional[UploadFile] = File(None)
 ):
@@ -67,6 +68,15 @@ async def victim_analyze(
             temp_path = os.path.join(TEMP_DIR, f"vic_{random.randint(10000,99999)}_{file.filename}")
             with open(temp_path, "wb") as buf:
                 shutil.copyfileobj(file.file, buf)
+        elif target:
+            # Download from target URL if no file is uploaded
+            import httpx
+            temp_path = os.path.join(TEMP_DIR, f"vic_url_{random.randint(10000,99999)}.jpg")
+            async with httpx.AsyncClient() as client:
+                r = await client.get(target, timeout=10.0)
+                r.raise_for_status()
+                with open(temp_path, "wb") as f:
+                    f.write(r.content)
 
         # Extract frames
         if temp_path and temp_path.lower().endswith(VIDEO_EXTS):
