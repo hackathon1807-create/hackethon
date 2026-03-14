@@ -11,6 +11,7 @@ API Endpoints:
 """
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 import shutil
 import os
@@ -441,6 +442,12 @@ async def health_check():
         "data_retention": "NONE"
     }
 
+# ── Mount React Frontend ───────────────────────────────────────────────────────
+frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+else:
+    print(f"Warning: Frontend build not found at {frontend_dist}. Run 'npm run build' in frontend directory.")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

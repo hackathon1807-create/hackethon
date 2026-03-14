@@ -240,6 +240,8 @@ const encodeWAV = (samples: Float32Array, sampleRate: number): Blob => {
     return new Blob([buffer], { type: 'audio/wav' });
 };
 
+const BACKEND_URL = import.meta.env.DEV ? 'http://localhost:8000' : '';
+
 const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
     const [phase, setPhase] = useState<'upload' | 'scanning' | 'result'>('upload');
     const [activeTab, setActiveTab] = useState<'media' | 'audio' | 'live'>('media');
@@ -285,7 +287,7 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
             const formData = new FormData();
             if (target) formData.append('target', target);
             if (selectedFile) formData.append('file', selectedFile);
-            const res = await fetch('http://localhost:8000/investigator/trace', { method: 'POST', body: formData });
+            const res = await fetch(`${BACKEND_URL}/investigator/trace`, { method: 'POST', body: formData });
             const data = await res.json();
             setTraceResult(data);
         } catch (err: any) {
@@ -370,7 +372,7 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
                     fd.append("audio_data", wavBlob, "live_stream.wav");
                 }
 
-                const res = await fetch('http://localhost:8000/victim/live_frame', { method: 'POST', body: fd });
+                const res = await fetch(`${BACKEND_URL}/victim/live_frame`, { method: 'POST', body: fd });
                 const json = await res.json();
                 setLiveScore(json.manipulation_score || 0);
                 if (json.behavioral_biometrics) {
@@ -400,8 +402,8 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
             if (target) formData.append('target', target);
             
             const endpoint = activeTab === 'audio' 
-                ? 'http://localhost:8000/victim/analyze_audio' 
-                : 'http://localhost:8000/victim/analyze';
+                ? `${BACKEND_URL}/victim/analyze_audio` 
+                : `${BACKEND_URL}/victim/analyze`;
                 
             const res = await fetch(endpoint, { method: 'POST', body: formData });
             const data = await res.json();
