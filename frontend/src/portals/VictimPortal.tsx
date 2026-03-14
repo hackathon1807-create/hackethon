@@ -144,40 +144,42 @@ const DetectionMeter = ({ label, value, color }: { label: string; value: number;
     <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
             <span className="text-[9px] font-mono opacity-40 uppercase tracking-widest">{label}</span>
-            <span className={`text-sm font-black font-mono ${color}`}>{value.toFixed(1)}%</span>
+            <span className={`text-sm font-black font-mono ${color}`}>{(value || 0).toFixed(1)}%</span>
         </div>
         <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
             <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${value}%` }}
+                animate={{ width: `${(value || 0)}%` }}
                 transition={{ duration: 1.2, ease: 'easeOut' }}
-                className={`h-full rounded-full ${value > 60 ? 'bg-blood' : 'bg-sky-400'}`}
+                className={`h-full rounded-full ${(value || 0) > 60 ? 'bg-blood' : 'bg-sky-400'}`}
             />
         </div>
     </div>
 );
 
 // ── Frame Grid ──────────────────────────────────────────────────────────────────
-const FrameGrid = ({ frames }: { frames: number[] }) => (
+const FrameGrid = ({ frames }: { frames: number[] }) => {
+    const safeFrames = frames || [];
+    return (
     <div>
         <span className="text-[9px] font-mono opacity-30 uppercase mb-3 block">
-            Frame Entropy Analysis — {frames.filter(f => f > 0.6).length}/{frames.length} frames flagged
+            Frame Entropy Analysis — {safeFrames.filter(f => f > 0.6).length}/{safeFrames.length} frames flagged
         </span>
         <div className="grid grid-cols-10 gap-1.5 h-16">
-            {frames.map((score, i) => (
+            {safeFrames.map((score, i) => (
                 <motion.div
                     key={i}
                     initial={{ scaleY: 0, opacity: 0 }}
                     animate={{ scaleY: 1, opacity: 1 }}
                     transition={{ delay: i * 0.04, duration: 0.4 }}
-                    className={`rounded-sm origin-bottom ${score > 0.6 ? 'bg-blood' : 'bg-sky-400/30'}`}
-                    style={{ height: `${Math.round(score * 100)}%` }}
-                    title={`Frame ${i + 1}: ${(score * 100).toFixed(1)}% manipulation`}
+                    className={`rounded-sm origin-bottom ${(score || 0) > 0.6 ? 'bg-blood' : 'bg-sky-400/30'}`}
+                    style={{ height: `${Math.round((score || 0) * 100)}%` }}
+                    title={`Frame ${i + 1}: ${((score || 0) * 100).toFixed(1)}% manipulation`}
                 />
             ))}
         </div>
     </div>
-);
+)};
 
 // ── Grad-CAM Heatmap Overlay ────────────────────────────────────────────────────
 const HeatmapOverlay = ({ src, grid }: { src: string; grid: number[][] }) => {
