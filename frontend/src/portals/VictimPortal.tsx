@@ -301,22 +301,6 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
 
     useEffect(() => { return () => stopLiveMode(); }, []);
 
-    const handleDownload = () => {
-        if (!result?.evidence_report) return;
-        const text = `Meipporul AI Forensics Report\n\nVerdict: ${result.evidence_report.verdict}\nConfidence: ${result.evidence_report.confidence_percent}%\n\nTechnical Anomalies:\n${result.evidence_report.technical_anomalies?.join('\n')}\n\nEvidence Summary:\n${result.evidence_report.evidence_summary}\n\nDefense Narrative:\n${result.evidence_report.defense_narrative}\n\nRecommended Actions:\n${result.evidence_report.recommended_actions?.join('\n')}\n\nIntegrity Hash: ${result.evidence_report.integrity_hash}`;
-        const blob = new Blob([text], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        // Strip out domain slashes if target is a URL
-        const safeTarget = target ? target.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'media';
-        a.download = `Forensic_Report_${selectedFile?.name || safeTarget}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;

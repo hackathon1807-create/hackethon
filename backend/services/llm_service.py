@@ -8,6 +8,7 @@ Privacy: 100% local. No data leaves the machine.
 import httpx
 import json
 import re
+import os
 from typing import Optional
 
 OLLAMA_BASE = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
