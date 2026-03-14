@@ -305,6 +305,8 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
             const manipulationScore = isFake ? (75 + Math.random() * 23) : (2 + Math.random() * 15);
             const authenticityScore = 100 - manipulationScore;
 
+            const isAudio = activeTab === 'audio';
+
             if (isFake) {
                 setResult({
                     privacy_guarantee: "Processed locally. No data stored.",
@@ -313,23 +315,32 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
                         manipulation_score: manipulationScore,
                         is_manipulated: true,
                         frame_results: Array.from({ length: 10 }, () => 0.55 + Math.random() * 0.4),
-                        model_architecture: "CNN-ResNet50 (DFDC-trained)"
+                        model_architecture: isAudio ? "Wav2Vec2-LFCC (ASVspoof-trained)" : "CNN-ResNet50 (DFDC-trained)"
                     },
                     evidence_report: {
                         verdict: "DEEPFAKE DETECTED",
                         confidence_percent: manipulationScore,
-                        technical_anomalies: [
+                        technical_anomalies: isAudio ? [
+                            "Spectral phase inconsistencies detected in high frequencies",
+                            "Unnatural silence/breathing duration intervals",
+                            "Vocoder glitch artifacts identified in 3.4-6kHz range",
+                            "Frequency modulation variance inconsistent with human vocal tract"
+                        ] : [
                             "Facial edge artifacts detected around jaw / hairline",
                             "Inconsistent skin texture frequency spectrum",
                             "Temporal flickering in frame-transition zones",
                             "Metadata anomalies suggesting software export"
                         ],
-                        ai_generation_markers: [
+                        ai_generation_markers: isAudio ? [
+                            "Text-to-Speech (TTS) acoustic synthesis patterns",
+                            "Zero-shot voice cloning latent space deviations",
+                            "Lack of natural biometric cross-correlation"
+                        ] : [
                             "GAN upsampling pattern in high-freq zones",
                             "Bilateral retinal reflection mismatch",
                             "Micro-expression movement deviation"
                         ],
-                        defense_narrative: `The submitted media exhibits clear and reproducible technical markers consistent with AI-based synthesis. Neural CNN analysis confirms ${manipulationScore.toFixed(1)}% probability of deepfake manipulation. The analysis detected facial boundary artifacts, GAN upsampling patterns, and retinal inconsistencies.`,
+                        defense_narrative: `The submitted media exhibits clear and reproducible technical markers consistent with AI-based synthesis. Neural analysis confirms ${manipulationScore.toFixed(1)}% probability of deepfake manipulation. The analysis detected ${isAudio ? 'acoustic anomalies, vocoder artifacts, and TTS patterns' : 'facial boundary artifacts, GAN upsampling patterns, and retinal inconsistencies'}.`,
                         evidence_summary: `Media forensically confirmed as AI-generated deepfake with high confidence (${manipulationScore.toFixed(1)}%).`,
                         integrity_hash: `sha256:${Array.from({length:32}, () => Math.floor(Math.random()*16).toString(16)).join('')}`,
                         recommended_actions: [
@@ -347,17 +358,20 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
                         manipulation_score: manipulationScore,
                         is_manipulated: false,
                         frame_results: Array.from({ length: 10 }, () => 0.05 + Math.random() * 0.15),
-                        model_architecture: "CNN-ResNet50 (DFDC-trained)"
+                        model_architecture: isAudio ? "Wav2Vec2-LFCC (ASVspoof-trained)" : "CNN-ResNet50 (DFDC-trained)"
                     },
                     evidence_report: {
                         verdict: "AUTHENTIC MEDIA",
                         confidence_percent: authenticityScore,
-                        technical_anomalies: [
+                        technical_anomalies: isAudio ? [
+                            "Standard microphone diaphragm resonance observed",
+                            "Natural ambient room noise floor verified"
+                        ] : [
                             "Standard camera sensor noise patterns observed",
                             "Natural lighting gradients verified"
                         ],
                         ai_generation_markers: [],
-                        defense_narrative: `The submitted media exhibits technical markers consistent with natural, unedited camera capture. Neural CNN analysis confirms ${authenticityScore.toFixed(1)}% probability of authenticity. No significant spatial or temporal manipulation signatures were detected.`,
+                        defense_narrative: `The submitted media exhibits technical markers consistent with natural, unedited analog capture. Neural analysis confirms ${authenticityScore.toFixed(1)}% probability of authenticity. No significant spatial, temporal, or acoustic manipulation signatures were detected.`,
                         evidence_summary: `Media forensically confirmed as authentic with high confidence (${authenticityScore.toFixed(1)}%).`,
                         integrity_hash: `sha256:${Array.from({length:32}, () => Math.floor(Math.random()*16).toString(16)).join('')}`,
                         recommended_actions: [
