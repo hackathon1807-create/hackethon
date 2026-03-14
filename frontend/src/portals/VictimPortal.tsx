@@ -23,7 +23,7 @@ const DMCA_PLATFORMS = [
 ];
 
 // ── Phase 2 Innovations: Complex UI Components ─────────────────────────────────
-const NeuralThoughtTrace = () => {
+const NeuralThoughtTrace = ({ onComplete }: { onComplete?: () => void }) => {
     const [lines, setLines] = useState<string[]>([]);
     const messages = [
         "Initializing Neural Forensic Engine v4.1...",
@@ -44,6 +44,7 @@ const NeuralThoughtTrace = () => {
                 i++;
             } else {
                 clearInterval(interval);
+                onComplete?.();
             }
         }, 600);
         return () => clearInterval(interval);
@@ -300,6 +301,22 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
 
     useEffect(() => { return () => stopLiveMode(); }, []);
 
+    const handleDownload = () => {
+        if (!result?.evidence_report) return;
+        const text = `Meipporul AI Forensics Report\n\nVerdict: ${result.evidence_report.verdict}\nConfidence: ${result.evidence_report.confidence_percent}%\n\nTechnical Anomalies:\n${result.evidence_report.technical_anomalies?.join('\n')}\n\nEvidence Summary:\n${result.evidence_report.evidence_summary}\n\nDefense Narrative:\n${result.evidence_report.defense_narrative}\n\nRecommended Actions:\n${result.evidence_report.recommended_actions?.join('\n')}\n\nIntegrity Hash: ${result.evidence_report.integrity_hash}`;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Strip out domain slashes if target is a URL
+        const safeTarget = target ? target.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'media';
+        a.download = `Forensic_Report_${selectedFile?.name || safeTarget}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -308,13 +325,14 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
     };
 
     const handleAnalyze = async () => {
-        if (!selectedFile && !description) return;
+        if (!selectedFile && !description && !target) return;
         setPhase('scanning');
 
         try {
             const formData = new FormData();
             if (selectedFile) formData.append('file', selectedFile);
             if (description) formData.append('description', description);
+            if (target) formData.append('target', target);
             
             const endpoint = activeTab === 'audio' 
                 ? 'http://localhost:8000/victim/analyze_audio' 
@@ -648,7 +666,7 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                 <h2 className="text-2xl font-black uppercase tracking-tighter mix-blend-screen shadow-sky-500">Processing Hybrid ViT-CNN</h2>
                             </div>
 
-                            <NeuralThoughtTrace />
+                            <NeuralThoughtTrace onComplete={() => setPhase('result')} />
                         </motion.div>
                     )}
 
