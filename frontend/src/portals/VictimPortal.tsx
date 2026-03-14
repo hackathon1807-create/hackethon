@@ -655,7 +655,13 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                     )}
 
                     {/* ── RESULT PHASE ────────────────────────────── */}
-                    {phase === 'result' && result && (
+                    {phase === 'result' && result && (() => {
+                        const report = result.evidence_report;
+                        const cnn = result.cnn_analysis;
+                        const audio = result.audio_analysis;
+                        const isDeepfake = cnn?.is_manipulated || audio?.is_spoofed;
+
+                        return (
                         <motion.div key="result" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-6">
 
                             {/* BIG VERDICT CARD */}
@@ -874,7 +880,8 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                 )}
                             </AnimatePresence>
                         </motion.div>
-                    )}
+                        );
+                    })()}
                 </AnimatePresence>
             </div>
         </div>
