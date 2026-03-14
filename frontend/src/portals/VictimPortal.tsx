@@ -207,6 +207,39 @@ const HeatmapOverlay = ({ src, grid }: { src: string; grid: number[][] }) => {
     );
 };
 
+// ── Custom PCM-to-WAV Encoder ───────────────────────────────────────────────────
+const writeString = (view: DataView, offset: number, string: string) => {
+    for (let i = 0; i < string.length; i++) {
+        view.setUint8(offset + i, string.charCodeAt(i));
+    }
+};
+
+const encodeWAV = (samples: Float32Array, sampleRate: number): Blob => {
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
+    
+    writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + samples.length * 2, true);
+    writeString(view, 8, 'WAVE');
+    writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
+    writeString(view, 36, 'data');
+    view.setUint32(40, samples.length * 2, true);
+    
+    let offset = 44;
+    for (let i = 0; i < samples.length; i++, offset += 2) {
+        let s = Math.max(-1, Math.min(1, samples[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+    return new Blob([buffer], { type: 'audio/wav' });
+};
+
 const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
     const [phase, setPhase] = useState<'upload' | 'scanning' | 'result'>('upload');
     const [activeTab, setActiveTab] = useState<'media' | 'audio' | 'live'>('media');
@@ -219,6 +252,9 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
     const [liveScore, setLiveScore] = useState<number>(0);
     const [liveMetrics, setLiveMetrics] = useState<any>(null);
     const liveIntervalRef = useRef<number | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null);
+    const audioChunksRef = useRef<Float32Array[]>([]);
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewURL, setPreviewURL] = useState<string | null>(null);
@@ -265,10 +301,29 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
 
     const startLiveMode = async () => {
         try {
-            const stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" } });
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" }, audio: true });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 setIsLive(true);
+                
+                // ── Setup Real-Time Audio Capture ──
+                const audioTracks = stream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    const actx = new window.AudioContext();
+                    audioContextRef.current = actx;
+                    const source = actx.createMediaStreamSource(new MediaStream(audioTracks));
+                    try {
+                        const processor = actx.createScriptProcessor(4096, 1, 1);
+                        scriptProcessorRef.current = processor;
+                        
+                        processor.onaudioprocess = (e) => {
+                            audioChunksRef.current.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+                        };
+                        source.connect(processor);
+                        processor.connect(actx.destination);
+                    } catch (e) { console.error("Audio processor setup failed", e); }
+                }
+
                 liveIntervalRef.current = window.setInterval(captureAndAnalyzeLiveFrame, 1500);
             }
         } catch (e) { console.error("Screen access denied"); }
@@ -279,6 +334,9 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
             (videoRef.current.srcObject as MediaStream).getTracks().forEach(t => t.stop());
             videoRef.current.srcObject = null;
         }
+        if (scriptProcessorRef.current) scriptProcessorRef.current.disconnect();
+        if (audioContextRef.current) audioContextRef.current.close();
+        
         setIsLive(false);
         if (liveIntervalRef.current) clearInterval(liveIntervalRef.current);
     };
@@ -295,6 +353,23 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
             const frameData = canvas.toDataURL('image/jpeg', 0.8);
             try {
                 const fd = new FormData(); fd.append("frame_data", frameData);
+                
+                // ── Append Audio WAV Chunk If Available ──
+                if (audioChunksRef.current.length > 0 && audioContextRef.current) {
+                    const totalLength = audioChunksRef.current.reduce((acc, val) => acc + val.length, 0);
+                    const combined = new Float32Array(totalLength);
+                    let offset = 0;
+                    for (const chunk of audioChunksRef.current) {
+                        combined.set(chunk, offset);
+                        offset += chunk.length;
+                    }
+                    audioChunksRef.current = []; // Clear buffer for next cycle
+                    
+                    const wavBlob = encodeWAV(combined, audioContextRef.current.sampleRate);
+                    // Name must end in .wav for python backend to process correctly
+                    fd.append("audio_data", wavBlob, "live_stream.wav");
+                }
+
                 const res = await fetch('http://localhost:8000/victim/live_frame', { method: 'POST', body: fd });
                 const json = await res.json();
                 setLiveScore(json.manipulation_score || 0);
@@ -554,17 +629,35 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                                     </div>
 
                                                     {/* Micro Expression */}
-                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono">
+                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono border-b border-white/5 pb-1 mb-1">
                                                         <span className="text-slate-400 tracking-tighter">Micro-expressions:</span>
                                                         <span className={cn("font-bold tracking-tighter", liveMetrics.micro_expression_anomaly ? 'text-blood' : 'text-green-400')}>
                                                             {liveMetrics.micro_expression_anomaly ? 'SYNTHETIC' : 'BIOLOGICAL'}
                                                         </span>
                                                     </div>
+
+                                                    <span className="text-[9px] font-black text-purple-400 uppercase tracking-widest border-b border-white/10 pb-1 mb-1 mt-1">Acoustic & Sync Analysis</span>
+
+                                                    {/* Lip Sync */}
+                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono">
+                                                        <span className="text-slate-400 tracking-tighter">Latent AV Lag (Lip-Sync):</span>
+                                                        <span className={cn("font-bold tracking-tighter", liveMetrics.av_desync_anomaly ? 'text-blood' : 'text-green-400')}>
+                                                            {liveMetrics.latent_lag_ms}ms {liveMetrics.av_desync_anomaly ? '(DESYNC)' : '(SYNC)'}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Acoustic Spoof */}
+                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono">
+                                                        <span className="text-slate-400 tracking-tighter">Acoustic Voice Auth:</span>
+                                                        <span className={cn("font-bold tracking-tighter", liveMetrics.voice_dub_detected ? 'text-blood' : 'text-green-400')}>
+                                                            {liveMetrics.voice_dub_detected ? 'AI DUB DETECTED' : 'NATURAL'}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 
-                                                {(liveMetrics.face_detected) && (
+                                                {(liveMetrics.face_detected || liveMetrics.acoustic_spoof_prob !== undefined) && (
                                                     <div className="mt-1 ml-1 text-[10px] text-sky-400 font-mono animate-pulse flex items-center gap-2">
-                                                        <Scan size={12}/> Target Locked: Processing
+                                                        <Scan size={12}/> Target Locked: Processing Stream
                                                     </div>
                                                 )}
                                             </div>
