@@ -264,13 +264,13 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
 
     const startLiveMode = async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser" } });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
                 setIsLive(true);
                 liveIntervalRef.current = window.setInterval(captureAndAnalyzeLiveFrame, 1500);
             }
-        } catch (e) { console.error("Webcam access denied"); }
+        } catch (e) { console.error("Screen access denied"); }
     };
 
     const stopLiveMode = () => {
@@ -518,7 +518,7 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                             <div className="w-full max-w-2xl bg-black rounded-3xl overflow-hidden border border-white/10 relative shadow-2xl aspect-video bg-sky-950/20 flex flex-col items-center justify-center">
                                 <video ref={videoRef} autoPlay playsInline muted className={cn("w-full h-full object-cover transition-opacity duration-1000", isLive ? 'opacity-100' : 'opacity-0')} />
                                 <canvas ref={canvasRef} className="hidden" />
-                                {!isLive && ( <button onClick={startLiveMode} className="absolute z-10 flex items-center gap-3 bg-blood text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"><Video size={20}/> Start Webcam</button> )}
+                                {!isLive && ( <button onClick={startLiveMode} className="absolute z-10 flex items-center gap-3 bg-blood text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"><Video size={20}/> Share Screen (Meet/Zoom)</button> )}
                                 {isLive && (
                                     <div className="absolute inset-0 pointer-events-none border-[8px] transition-colors duration-500" style={{ borderColor: `rgba(${liveScore > 50 ? '255,50,50' : '50,255,50'}, ${liveScore/100})` }}>
                                         <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl border border-white/10 flex items-center gap-3">
