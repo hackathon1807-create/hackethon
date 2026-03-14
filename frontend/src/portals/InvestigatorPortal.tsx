@@ -212,9 +212,9 @@ ${'═'.repeat(60)}
                 </div>
 
                 {/* Main Panel */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 no-scrollbar">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-8 no-scrollbar pb-10">
                     {/* Mobile Tab Scroll */}
-                    <div className="flex lg:hidden gap-2 mb-6 overflow-x-auto no-scrollbar pb-2">
+                    <div className="flex lg:hidden gap-2 mb-4 sm:mb-6 overflow-x-auto no-scrollbar pb-2 pt-1 mx-[-12px] px-3 sm:mx-0 sm:px-0 scroll-smooth">
                         {panels.map(p => {
                             const Icon = p.icon;
                             return (
@@ -237,22 +237,22 @@ ${'═'.repeat(60)}
                                     <p className="text-[10px] text-slate-500">Real-time intelligence: WHOIS · DNS · IP Geo · Shodan · URLScan · File Forensics · News</p>
                                 </div>
 
-                                <div className="flex flex-col md:flex-row gap-4">
+                                <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                                     <input type="text" value={target} onChange={e => setTarget(e.target.value)}
-                                        placeholder="Target URL (e.g. https://tiktok.com/@user/video/123...)"
-                                        className="flex-1 bg-white/5 border border-white/5 focus:border-blood/40 rounded-2xl px-6 py-4 text-xs font-mono outline-none text-slate-300 placeholder-slate-600 transition-all"
+                                        placeholder="Target URL (e.g. https://tiktok.com/@user/...)"
+                                        className="flex-1 bg-white/5 border border-white/5 focus:border-blood/40 rounded-xl sm:rounded-2xl px-4 sm:px-6 py-3 sm:py-4 text-xs font-mono outline-none text-slate-300 placeholder-slate-600 transition-all min-w-0"
                                     />
-                                    <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 px-6 py-4 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all">
-                                        <Upload size={14} />{selectedFile ? selectedFile.name.slice(0, 15) + '...' : 'Inject Media'}
+                                    <button onClick={() => fileRef.current?.click()} className="flex justify-center items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest whitespace-nowrap transition-all flex-shrink-0">
+                                        <Upload size={14} className="shrink-0" />{selectedFile ? selectedFile.name.slice(0, 15) + '...' : 'Inject Media'}
                                     </button>
                                     <input ref={fileRef} type="file" onChange={e => setSelectedFile(e.target.files?.[0] || null)} className="hidden" />
                                 </div>
 
                                 <button onClick={handleTrace} disabled={isTracing || (!target && !selectedFile)}
-                                    className="w-full bg-blood hover:bg-red-700 disabled:opacity-40 text-white py-5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_0_30px_-10px_rgba(180,0,30,0.5)] transition-all">
+                                    className="w-full bg-blood hover:bg-red-700 disabled:opacity-40 text-white py-3 sm:py-5 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3 shadow-[0_0_30px_-10px_rgba(180,0,30,0.5)] transition-all">
                                     {isTracing ? (
-                                        <><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full" />Running Live OSINT Investigation...</>
-                                    ) : <><Crosshair size={16} />Initiate Real-Time OSINT Trace</>}
+                                        <><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1 }} className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white/20 border-t-white rounded-full shrink-0" /><span className="truncate">Tracing...</span></>
+                                    ) : <><Crosshair size={14} className="sm:w-[16px] sm:h-[16px] shrink-0" /><span className="truncate">Initiate Real-Time OSINT Trace</span></>}
                                 </button>
 
                                 {/* REAL OSINT RESULTS */}
@@ -693,8 +693,8 @@ ${'═'.repeat(60)}
                                                 <span className="text-xs font-bold uppercase tracking-widest block mb-1">{p.name}</span>
                                                 <span className="text-[9px] text-slate-500">{p.type}</span>
                                             </div>
-                                            <div className="flex items-center gap-4">
-                                                <span className={cn("text-[8px] px-3 py-1 rounded-full border font-bold uppercase", p.severity === 'CRITICAL' ? 'border-blood/40 text-blood' : p.severity === 'HIGH' ? 'border-amber-500/40 text-amber-400' : 'border-slate-500/40 text-slate-400')}>{p.severity}</span>
+                                            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto mt-3 sm:mt-0 justify-between sm:justify-end border-t sm:border-none border-white/5 pt-3 sm:pt-0">
+                                                <span className={cn("text-[8px] px-2 sm:px-3 py-1 rounded-full border font-bold uppercase", p.severity === 'CRITICAL' ? 'border-blood/40 text-blood' : p.severity === 'HIGH' ? 'border-amber-500/40 text-amber-400' : 'border-slate-500/40 text-slate-400')}>{p.severity}</span>
                                                 <ExternalLink size={14} className="text-slate-600 group-hover:text-blood transition-colors" />
                                             </div>
                                         </a>

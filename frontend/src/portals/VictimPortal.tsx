@@ -413,14 +413,14 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                 </header>
             )}
 
-            <div className="flex-1 p-4 md:p-8 max-w-4xl mx-auto w-full flex flex-col gap-6">
+            <div className="p-3 sm:p-4 md:p-8 max-w-4xl mx-auto w-full flex flex-col gap-4 sm:gap-6 min-h-full pb-10">
                 
                 {/* TABS (Only show during upload phase) */}
                 {phase === 'upload' && (
                     <div className="flex justify-center gap-2 mb-4 bg-white/5 p-1 rounded-2xl w-fit mx-auto border border-white/5">
-                        <button onClick={() => { setActiveTab('media'); stopLiveMode(); }} className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition", activeTab === 'media' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-white')}><Scan size={14} className="inline mr-2"/> Image / Video</button>
-                        <button onClick={() => { setActiveTab('audio'); stopLiveMode(); }} className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition", activeTab === 'audio' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}><Mic size={14} className="inline mr-2"/> Voice Spoof</button>
-                        <button onClick={() => setActiveTab('live')} className={cn("px-6 py-2 rounded-xl text-xs font-bold uppercase transition", activeTab === 'live' ? 'bg-blood text-white' : 'text-slate-400 hover:text-white')}><Video size={14} className="inline mr-2"/> Live Stream</button>
+                        <button onClick={() => { setActiveTab('media'); stopLiveMode(); }} className={cn("px-3 sm:px-6 py-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition flex-1 sm:flex-none flex justify-center items-center whitespace-nowrap", activeTab === 'media' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:text-white')}><Scan size={14} className="hidden sm:inline mr-2"/> Media</button>
+                        <button onClick={() => { setActiveTab('audio'); stopLiveMode(); }} className={cn("px-3 sm:px-6 py-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition flex-1 sm:flex-none flex justify-center items-center whitespace-nowrap", activeTab === 'audio' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white')}><Mic size={14} className="hidden sm:inline mr-2"/> Voice</button>
+                        <button onClick={() => setActiveTab('live')} className={cn("px-3 sm:px-6 py-2 rounded-xl text-[10px] sm:text-xs font-bold uppercase transition flex-1 sm:flex-none flex justify-center items-center whitespace-nowrap", activeTab === 'live' ? 'bg-blood text-white' : 'text-slate-400 hover:text-white')}><Video size={14} className="hidden sm:inline mr-2"/> Live</button>
                     </div>
                 )}
 
@@ -451,7 +451,7 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                     {phase === 'upload' && activeTab !== 'live' && (
                         <motion.div key="upload" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex flex-col gap-6">
                             <div className="text-center">
-                                <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight mb-1">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight mb-1">
                                     Is it <span className={activeTab === 'audio' ? 'text-purple-500' : 'text-blood'}>Deepfake</span> or Real?
                                 </h1>
                                 <p className="text-xs text-slate-500">Upload your {activeTab === 'audio' ? 'voice note' : 'image or video'} — our local AI analyses it in seconds.</p>
@@ -583,25 +583,25 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                     </div>
                                 )}
 
-                                <div className="flex-1 text-center md:text-left">
+                                <div className="flex-1 text-center md:text-left w-full mt-4 md:mt-0">
                                     <p className="text-[10px] font-mono uppercase opacity-40 mb-1">Meipporul AI · Neural Forensic Verdict</p>
-                                    <h1 className={cn("text-5xl md:text-7xl font-black uppercase tracking-tighter mb-3", isDeepfake ? 'text-blood' : 'text-green-400')}>
+                                    <h1 className={cn("text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter mb-2 sm:mb-3 line-clamp-2 md:line-clamp-none leading-none", isDeepfake ? 'text-blood' : 'text-green-400')}>
                                         {report?.verdict || "UNKNOWN"}
                                     </h1>
                                     <p className="text-xs text-slate-400 mb-4">
                                         <span className="font-black text-white text-base">{(cnn?.manipulation_score || audio?.spoof_score || 0).toFixed(1)}%</span> probability of synthetic manipulation
                                         &nbsp;&nbsp;·&nbsp;&nbsp;Model: <span className="font-mono text-sky-400">{cnn?.model_architecture || audio?.model_architecture || "N/A"}</span>
                                     </p>
-                                    <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                                        <button onClick={handleDownload} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-[10px] font-bold uppercase tracking-widest transition-all">
-                                            <Download size={12} />Download Evidence
+                                    <div className="flex flex-wrap gap-2 justify-center md:justify-start w-full">
+                                        <button onClick={handleDownload} className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all">
+                                            <Download size={12} className="shrink-0" /> <span className="truncate">Download</span>
                                         </button>
-                                        <button onClick={() => setShowEvidence(!showEvidence)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[10px] font-bold uppercase tracking-widest transition-all">
-                                            <FileText size={12} />{showEvidence ? 'Hide' : 'View'} Full Report
+                                        <button onClick={() => setShowEvidence(!showEvidence)} className="flex-1 sm:flex-none justify-center flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all">
+                                            <FileText size={12} className="shrink-0" /> <span className="truncate">Report</span>
                                         </button>
                                         <button onClick={() => { setPhase('upload'); setResult(null); setSelectedFile(null); setPreviewURL(null); }}
-                                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[10px] font-bold uppercase tracking-widest transition-all">
-                                            <Scan size={12} />Scan Another
+                                            className="w-full sm:w-auto mt-1 sm:mt-0 justify-center flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest transition-all">
+                                            <Scan size={12} className="shrink-0" /> <span className="truncate">Scan Another</span>
                                         </button>
                                     </div>
                                 </div>
