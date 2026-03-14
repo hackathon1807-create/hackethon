@@ -217,6 +217,7 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [liveScore, setLiveScore] = useState<number>(0);
+    const [liveMetrics, setLiveMetrics] = useState<any>(null);
     const liveIntervalRef = useRef<number | null>(null);
 
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -297,6 +298,9 @@ const VictimPortal = ({ onBack, hideHeader }: VictimPortalProps) => {
                 const res = await fetch('http://localhost:8000/victim/live_frame', { method: 'POST', body: fd });
                 const json = await res.json();
                 setLiveScore(json.manipulation_score || 0);
+                if (json.behavioral_biometrics) {
+                    setLiveMetrics(json.behavioral_biometrics);
+                }
             } catch (e) { }
         }
     };
@@ -526,6 +530,46 @@ Meipporul AI v4.0 · Local AI · Zero Cloud · Zero Storage
                                             <span className="text-xs font-mono uppercase tracking-wider text-white">Live Stream Analysis</span>
                                             <span className={cn("text-xl font-black", liveScore > 50 ? 'text-blood' : 'text-green-400')}>{liveScore.toFixed(0)}% Fake</span>
                                         </div>
+
+                                        {/*  ADVANCED BIOMETRIC HUD OVERLAY */}
+                                        {liveMetrics && (
+                                            <div className="absolute top-4 left-4 flex flex-col gap-2">
+                                                <div className="bg-black/60 backdrop-blur-md px-3 py-2 rounded-xl border border-white/10 flex flex-col gap-1 w-64 shadow-2xl">
+                                                    <span className="text-[9px] font-black text-sky-400 uppercase tracking-widest border-b border-white/10 pb-1 mb-1">Behavioral Biometrics</span>
+                                                    
+                                                    {/* EVM Pulse */}
+                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono">
+                                                        <span className="text-slate-400 tracking-tighter">Eulerian Blood Flow:</span>
+                                                        <span className={cn("font-bold tracking-tighter", liveMetrics.evm_pulse_anomaly ? 'text-blood' : 'text-green-400')}>
+                                                            {liveMetrics.evm_pulse_anomaly ? 'ANOMALOUS' : 'DETECTED'}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* EAR Blink */}
+                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono">
+                                                        <span className="text-slate-400 tracking-tighter">Eye Aspect Ratio:</span>
+                                                        <span className={cn("font-bold tracking-tighter", liveMetrics.blink_anomaly ? 'text-blood' : 'text-green-400')}>
+                                                            {liveMetrics.blink_anomaly ? 'STATIC TENSION' : 'DYNAMIC (NORMAL)'}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Micro Expression */}
+                                                    <div className="flex justify-between items-center text-[10px] uppercase font-mono">
+                                                        <span className="text-slate-400 tracking-tighter">Micro-expressions:</span>
+                                                        <span className={cn("font-bold tracking-tighter", liveMetrics.micro_expression_anomaly ? 'text-blood' : 'text-green-400')}>
+                                                            {liveMetrics.micro_expression_anomaly ? 'SYNTHETIC' : 'BIOLOGICAL'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                {(liveMetrics.face_detected) && (
+                                                    <div className="mt-1 ml-1 text-[10px] text-sky-400 font-mono animate-pulse flex items-center gap-2">
+                                                        <Scan size={12}/> Target Locked: Processing
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
                                     </div>
                                 )}
                             </div>
