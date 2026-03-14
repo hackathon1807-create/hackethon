@@ -91,12 +91,15 @@ const App = () => {
 
             {/* ── Global Slogan / Footer ───────────────────────────────── */}
             <footer className="w-full border-t border-white/5 bg-black/60 backdrop-blur-md py-3 px-4 sm:px-6 text-center shrink-0 z-50 relative">
-                <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-slate-300 leading-snug sm:leading-relaxed italic mb-0.5 sm:mb-1">
+                <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-slate-300 leading-snug sm:leading-relaxed italic mb-1 sm:mb-1.5">
                     "எப்பொருள் யார்யார்வாய்க் கேட்பினும் அப்பொருள்<br className="sm:hidden" />
                     <span className="hidden sm:inline"> </span>மெய்ப்பொருள் காண்ப தறிவு."
                 </p>
+                <p className="text-[9px] sm:text-xs font-medium text-slate-400 leading-snug italic mb-1.5 sm:mb-2 max-w-2xl mx-auto">
+                    "Whatever be the subject, whoever be the speaker, to find the truth is wisdom."
+                </p>
                 <p className="text-[8px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                    — திருக்குறள் (௪௱௨௰௩ - 423)
+                    — திருக்குறள் (௪௱௨௰௩ - Kural 423)
                 </p>
             </footer>
         </div>
